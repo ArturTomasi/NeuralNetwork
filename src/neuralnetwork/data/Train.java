@@ -24,7 +24,7 @@ public class Train
     {  	
         for ( Letter value : Letter.values() ) 
         {
-            train( 10000, value);
+            train( 5000, value);
         }
     }
     
