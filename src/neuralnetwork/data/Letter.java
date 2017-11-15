@@ -1,8 +1,5 @@
 package neuralnetwork.data;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum Letter 
 {
     A( 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 ),
@@ -32,14 +29,14 @@ public enum Letter
     Y( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 ),
     Z( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 );
     
-    private List<Double> outputs;
+    private double outputs[];
 
-    private Letter( Double... outputs ) 
+    private Letter( double... outputs ) 
     {
-        this.outputs = Arrays.asList( outputs );
+        this.outputs = outputs;
     }
 
-    public List<Double> getOutputs() 
+    public double [] getOutputs() 
     {
         return outputs;
     }

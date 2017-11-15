@@ -1,22 +1,17 @@
 package neuralnetwork.ui.pane;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.VBox;
+import static javafx.scene.layout.VBox.setMargin;
 import neuralnetwork.data.Letter;
 import neuralnetwork.util.ResourceLocator;
 
 public class ResultPane 
     extends 
-        JPanel
+        VBox
 {
     public ResultPane() 
     {
@@ -25,48 +20,45 @@ public class ResultPane
 
     public void setBackgroundResult( Letter letter ) 
     {
-    	this.image = ResourceLocator.getInstance().getImage( letter + ".png" );
-    
-        imagePane.repaint();
+    	image = new Image( ResourceLocator.getInstance().getImage( letter + ".png" ) );
+         
+        imageView.setImage( image );
+        
+        requestLayout();
     }
 
     public void clear() 
     {
-        image = this.image = ResourceLocator.getInstance().getImage( "blank.png" );
-
-        imagePane.repaint();
+        image = new Image( ResourceLocator.getInstance().getImage( "blank.png" ) );
+         
+        imageView.setImage( image );
+        
+        requestLayout();
     }
         
     private void initComponents()
     {
-        setBackground(Color.LIGHT_GRAY);
-        setPreferredSize(new Dimension(410, 450));
+        setPrefSize( 525, 575 );
         
-        outputLabel = new JLabel( "Resultado:" );
-        outputLabel.setFont( new Font("Arial", 20, 30 ) );
-
-        imagePane = new JPanel()
-        {
-            @Override
-            protected void paintComponent( Graphics g ) 
-            {
-                super.paintComponent(g); 
+        outputLabel = new Label( "Resultado:" );
+        
+        outputLabel.setStyle( "-fx-padding: 10;" + 
+                              "-fx-font-weight: bolder;" +
+                              "-fx-font-size: 26pt;" +
+                              "-fx-font-family: \"Helvetica, Verdana, sans-serif\";" +
+                              "-fx-text-fill: #607D8B" );
+ 
+        image = new Image( ResourceLocator.getInstance().getImage( "blank.png" ) );
                 
-                if ( image != null )
-                {
-                    g.drawImage( image, 0, 0, this );
-                }
-            }
-        };
+        imageView = new ImageView( image );
+        imageView.setFitHeight( 500 );
+        imageView.setFitWidth( 500 );
+        setMargin( imageView, new Insets( 10 ) );
         
-        imagePane.setPreferredSize( new Dimension( 400, 400 ) );
-        imagePane.setBackground( Color.WHITE );
-        
-        add( outputLabel );
-        add( imagePane );
+        getChildren().addAll( outputLabel, imageView );
     }
     
-    private JLabel outputLabel;
+    private Label outputLabel;
+    private ImageView imageView;
     private Image image;
-    private JPanel imagePane;
 }

@@ -4,19 +4,24 @@ package neuralnetwork.functions;
  * 
  * @author artur
  */
-public class Sigmoid 
-   implements 
-        Function
+public class Heavyside 
+    implements 
+        Function 
 {
     @Override
     public double evaluate( double arg )
     {
-        return ( 1 / ( 1 + Math.exp( -arg ) ) ); 
+        if ( arg > 0d )
+        {
+            return 1d;
+        } 
+        
+        return 0d;
     }
 
     @Override
     public double evaluateDerived( double arg )
     {
-        return ( arg - Math.pow( arg, 2 ) );
+        return 1d;
     }
 }

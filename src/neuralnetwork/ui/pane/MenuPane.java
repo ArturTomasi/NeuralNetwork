@@ -1,160 +1,153 @@
 package neuralnetwork.ui.pane;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
+import javafx.collections.FXCollections;
+import javafx.event.Event;
+import javafx.event.EventType;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Separator;
+import javafx.scene.layout.HBox;
 import neuralnetwork.data.Letter;
+import neuralnetwork.ui.parts.ActionButton;
+import neuralnetwork.ui.parts.ConfigEditor;
+import neuralnetwork.ui.parts.EditorCallback;
 
 
-public abstract class MenuPane 
+public class MenuPane 
     extends 
-        JPanel
+        HBox
 {
+    public static final class Events
+    {
+        public static final EventType ON_RECOGNIZE = new EventType( "onRecognize" );
+        public static final EventType ON_CLEAR     = new EventType( "onClear" );
+        public static final EventType ON_TRAIN     = new EventType( "onTrain" );
+        public static final EventType ON_LOAD      = new EventType( "onLoad" );
+        public static final EventType ON_CONFIG    = new EventType( "onConfig" );
+    }
+    
     public MenuPane() 
     {
         initComponents();
-        
-        initListeners();
+    }
+            
+    public void selectLetter( int index )
+    {
+        trainAsComboBox.getSelectionModel().select( index );
     }
     
-    public abstract int transformFunction();
-  
-    public abstract void clear();
     
-    public abstract void enabled();
-    
-    public abstract void disabled();
-    
-    public abstract void doTrain( Letter letter, int number );
-
-    public abstract void doTrainAll();
-    
-            
-    private void initListeners() 
+    public Letter selectLetter()
     {
-    	trainAllLettersButton.addActionListener( e ->
-        {
-            new Thread( () -> 
-            {
-                disabled();
-                trainAllLettersButton.setText("Treinando letras...");
-                trainAllLettersButton.setForeground(Color.RED);
-                
-                doTrainAll();
-
-                enabled();
-
-                trainAllLettersButton.setForeground(Color.BLACK);
-                trainAllLettersButton.setText( "Carregar Treinamento" );
-            } ).start();
-        } );
-
-        trainNetworkButton.addActionListener( e ->
-        {
-            new Thread( () -> 
-            {
-                disabled();
-                
-                Letter letter = (Letter) trainAsComboBox.getSelectedItem();
-                
-                trainNetworkButton.setText( "Treinando letra: " + letter  );
-                
-                trainNetworkButton.setForeground(Color.RED);
-                
-                int number = 0;
-                
-                try 
-                {
-                    number = Integer.parseInt(trainingAmountTextField.getText());
-                }
-                catch (Exception x) {}
-
+        return trainAsComboBox.getSelectionModel().getSelectedItem();
+    }
     
-                doTrain( letter, number );
-                
-                trainNetworkButton.setText( "Treinar Letra:" );
-                trainNetworkButton.setForeground(Color.BLACK);
-                
-                enabled();
-                
-            } ).start();
-        } );
-        
-        clearButton.addActionListener( e -> clear() );
-
-        recognizeResultButton.addActionListener( s -> trainAsComboBox.setSelectedIndex( transformFunction() ) );
+    
+    private void fire( EventType type )
+    {
+        fireEvent( new Event( type ) );
     }
     
     private void initComponents()
     {
-        setLayout(new GridBagLayout());
+        trainAsComboBox.setCursor( Cursor.HAND );
+        trainAsComboBox.setMinWidth( 100 );
+        trainAsComboBox.setMaxWidth( 150 );
+
+        trainAsComboBox.setStyle( "-fx-background-radius: 10; " +
+                                    "-fx-background-color: #ECEFF1; " +
+                                    "-fx-border-color: #607D8B;" +
+                                    "-fx-text-fill: #455A64;" +
+                                    "-fx-border-radius: 10; " +
+                                    "-fx-border-width: 2;"      +
+                                    "-fx-font-size: 10;"      +
+                                    "-fx-font-weight: bolder;"  );
+         
+        Separator sep1 = new Separator( Orientation.VERTICAL );
+        sep1.setStyle( "-fx-background-color: #607D8B; " +
+                       "-fx-border-color: #ECEFF1;"  );
+         
+        Separator sep2 = new Separator( Orientation.VERTICAL );
+        sep2.setStyle( "-fx-background-color: #607D8B; " +
+                       "-fx-border-color: #ECEFF1;"  );
         
-        setPreferredSize(new Dimension(200, 450));
+        getChildren().addAll( loadButton, recognizeButton, clearButton, 
+                              sep1, 
+                              trainAsComboBox, trainNetworkButton, 
+                              sep2,
+                              configButton );
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        
-        gbc.anchor = GridBagConstraints.CENTER;
-
-        add(new JSeparator(SwingConstants.VERTICAL), gbc);
-        add(Box.createVerticalStrut(20), gbc);
-        
-        trainAllLettersButton = new JButton( "Carregar Treinamento" );
-        add(trainAllLettersButton, gbc);
-        
-        add(Box.createVerticalStrut(20), gbc);
-                
-        add(new JLabel( "Treinar como:", SwingConstants.CENTER), gbc);
-
-        trainAsComboBox = new JComboBox( Letter.values() );
-        trainAsComboBox.setAlignmentX(Component.CENTER_ALIGNMENT);
-        trainAsComboBox.setMaximumSize(new Dimension((int) trainAsComboBox.getPreferredSize().getWidth(), 30));
-        add(trainAsComboBox, gbc);
-
-        add(Box.createVerticalStrut(30));
-
-        trainNetworkButton = new JButton( "Treinar Letra: " );
-
-        trainingAmountTextField = new JFormattedTextField( "5000" );
-        trainingAmountTextField.setMaximumSize(new Dimension(100, 30));
-        trainingAmountTextField.setPreferredSize(new Dimension(100, 30));
-        trainingAmountTextField.setHorizontalAlignment(JTextField.CENTER);
-        trainingAmountTextField.setFont(new Font("Serif", 20, 20));
-        
-        add(trainNetworkButton, gbc);
-        add(trainingAmountTextField, gbc);
-
-        add(Box.createVerticalStrut(70));
-
-        recognizeResultButton = new JButton( "Reconhecer" );
-        add(recognizeResultButton, gbc);
-
-        add(Box.createVerticalStrut(30));
-
-        clearButton = new JButton("Limpar");
-        clearButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        add(clearButton, gbc);
+        setMargin( loadButton, new Insets( 10 ) );
+        setMargin( recognizeButton, new Insets( 10 ) );
+        setMargin( clearButton, new Insets( 10 ) );
+        setMargin( trainAsComboBox, new Insets( 10 ) );
+        setMargin( trainNetworkButton, new Insets( 10 ) );
+        setMargin( configButton, new Insets( 10 ) );
+        setMargin( sep2, new Insets( 10 ) );
+        setMargin( sep1, new Insets( 10 ) );
     }
     
     
-    private JButton clearButton;
-    private JButton recognizeResultButton;
-    private JButton trainNetworkButton;
-    private JButton trainAllLettersButton;
+    private ActionButton clearButton = new ActionButton( "Limpar", new ActionButton.ActionHandler() 
+    {
+        @Override
+        public void onEvent( Event t )
+        {
+            fire( Events.ON_CLEAR );
+        }
+    } );
     
-    private JTextField trainingAmountTextField;
-    private JComboBox<String> trainAsComboBox;
+    private ActionButton recognizeButton = new  ActionButton( "Reconhecer", new ActionButton.ActionHandler()
+    {
+        @Override
+        public void onEvent( Event t ) 
+        {
+            fire( Events.ON_RECOGNIZE );
+        }
+    } );
+    
+    
+    private ActionButton loadButton = new  ActionButton( "Carregar Treinamento", new ActionButton.ActionHandler()
+    {
+        @Override
+        public void onEvent( Event t ) 
+        {
+            Thread thread = new Thread( () -> fire( Events.ON_LOAD ) );
+            
+            thread.setDaemon( true );
+            thread.start();
+        }
+    } );
+    
+    private ActionButton trainNetworkButton = new  ActionButton( "Treinar Letra", new ActionButton.ActionHandler()
+    {
+        @Override
+        public void onEvent( Event t ) 
+        {
+            Thread thread = new Thread( () -> fire( Events.ON_TRAIN ) );
+            
+            thread.setDaemon( true );
+            thread.start();
+        }
+    } );
+    
+    private ActionButton configButton = new  ActionButton( "Configurar", new ActionButton.ActionHandler()
+    {
+        @Override
+        public void onEvent( Event t ) 
+        {
+            new ConfigEditor( new EditorCallback( t ) 
+            {
+                @Override
+                public void handle(Event event) 
+                {
+                    fire( Events.ON_CONFIG );
+                }
+            } ).show();
+        }
+    } );
+    
+    private ComboBox<Letter> trainAsComboBox = new ComboBox( FXCollections.observableArrayList( Letter.values() ) );
 }

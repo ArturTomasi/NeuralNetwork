@@ -1,29 +1,35 @@
 package neuralnetwork.ui.pane;
 
-import java.awt.Dimension;
-import java.util.List;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.VBox;
+import static javafx.scene.layout.VBox.setMargin;
 
 public class OutputPane 
     extends 
-        JPanel
+        VBox
 {
     public OutputPane() 
     {
         initComponents();
     }
     
-    public void setOutputs( List<Double> outputs ) 
+    public void clear()
+    {
+        outputTextArea.setText( "" );
+    }
+    
+    public void setOutputs( double... outputs ) 
     {
         StringBuilder sb = new StringBuilder();
         
-        for ( int i = 0; i < outputs.size(); i++ ) 
+        for ( int i = 0; i < outputs.length; i++ ) 
         {
             int letterValue = i + 65;
             
             sb.append((char) letterValue);
-            double value = outputs.get(i);
+            double value = outputs[ i ];
             //if (value < 0.01) { value = 0; }
             if (value > 0.99) { value = 1; }
 
@@ -39,14 +45,25 @@ public class OutputPane
     
     private void initComponents()
     {
-        setPreferredSize(new Dimension( 200, 430 ) );
+        setPrefSize( 200, 575 );
 
-        outputTextArea = new JTextArea();
-        outputTextArea.setPreferredSize(new Dimension(200, 440));
-        outputTextArea.setEditable( false );
+        outputLabel = new Label( "Saida:" );
         
-        add(outputTextArea);
+        outputLabel.setStyle( "-fx-padding: 10;" + 
+                              "-fx-font-weight: bolder;" +
+                              "-fx-font-size: 26pt;" +
+                              "-fx-font-family: \"Helvetica, Verdana, sans-serif\";" +
+                              "-fx-text-fill: #607D8B" );
+        
+        outputTextArea = new TextArea();
+        outputTextArea.setEditable( false );
+        outputTextArea.setPrefSize( 200, 500 );
+
+        setMargin( outputTextArea, new Insets( 10 ) );        
+        
+        getChildren().addAll( outputLabel, outputTextArea );
     }
     
-    private JTextArea outputTextArea;
+    private TextArea outputTextArea;
+    private Label outputLabel;
 }

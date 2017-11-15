@@ -1,13 +1,14 @@
 package neuralnetwork.io;
 
 import neuralnetwork.util.ResourceLocator;
-import neuralnetwork.data.TrainingSet;
-import neuralnetwork.data.Network;
 import neuralnetwork.data.Letter;
-import neuralnetwork.data.Neuron;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,110 +17,63 @@ import java.util.logging.Logger;
  */
 public class FileUtilities 
 {
-//    private static File biasValues = new File( DIRECTORY, "biasValues.txt");
-//    
-//    private static File weightValues = new File(DIRECTORY, "weightValues.txt");
-//    
-//    private static File goodPixels = new File(DIRECTORY, "goodPixels.txt");
-//    
-    
-    public static List< List<TrainingSet> > readTrainingSets() 
+    public static Map<Letter, List<double[]>> loadInputs()
     {
-    	List<List<TrainingSet>> trainingSets = new ArrayList();
+        Map<Letter, List<double[]>> letterInput = new HashMap();
         
-        for ( Letter letter : Letter.values() )
+        try
         {
-            List<TrainingSet> listSets = new ArrayList();
-            
-            for ( List<Integer> list : readFromFile( ResourceLocator.getInstance().getPathText( letter + ".txt" ) ) )
+            for ( Letter letter : Letter.values() )
             {
-            	listSets.add( new TrainingSet( list, letter.getOutputs() ) );
-            }
-            
-            trainingSets.add( listSets );
-        }
-
-            return trainingSets;
-    }
-
-    private static List<List<Integer>> readFromFile( String filename )
-    {
-        List<List<Integer>> inputs = new ArrayList();
-
-        try 
-        {
-            InputStream in = new FileInputStream(filename);
-           
-            BufferedReader reader = new BufferedReader( new InputStreamReader(in) );
-        
-            String line;
-            
-            while ( (line = reader.readLine()) != null )
-            {
-                List<Integer> input = new ArrayList();
-             
-                for ( int i = 0; i < line.length(); i++ )
-                {
-                    int value = 0;
-                 
-                    input.add( Integer.parseInt( String.valueOf( line.charAt(i) ) ) );
-                }
+                List<double[]> inputs = letterInput.getOrDefault( letter, new ArrayList() );
                 
-                inputs.add(input);
+                String path = ResourceLocator.getInstance().getPathText( letter + ".txt" );
+
+                Files.lines( Paths.get( path ) ).forEach( line ->
+                {
+                    double input [] = new double[ line.length() ];
+                    
+                    for ( int i = 0; i < line.length(); i++ )
+                    {
+                        input[i] = Double.parseDouble( String.valueOf( line.charAt(i) ) );
+                    }
+
+                    inputs.add( input );
+                } ); 
+                
+                letterInput.put( letter, inputs );
             }
-            
-            reader.close();
-        } 
-        
-        catch ( IOException e )
-        {
-            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
         }
-
-        return inputs;
-    }
-    
-    public static void showTextsABCSize() 
-    {
-        try 
-        {
-            List<String> results = new ArrayList();
-
-            for ( Letter l : Letter.values() )
-            {
-                InputStream in = new FileInputStream(  ResourceLocator.getInstance().getPathText( l + ".txt" ) );
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-                int numbLines = 0;
-
-                while ((reader.readLine()) != null) {
-                    numbLines++;
-                }
-
-                results.add( l + ":" + numbLines + " results");
-                reader.close();
-            }
-    	}
         
         catch ( Exception e )
         {
             Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
         }
+        
+        return letterInput;
     }
-
-    public static void saveToFile(List<Integer> input, Letter filename) {
-        try {
+    
+    public static void saveInput( List<Integer> input, Letter filename )
+    {
+        try 
+        {
             File file = ResourceLocator.getInstance().getFileText( filename + ".txt" );
             
-            PrintWriter pw = new PrintWriter(new FileOutputStream(file, true));
-            for (Integer i : input) {
-                pw.write(Integer.toString(i));
+            PrintWriter pw = new PrintWriter( new FileOutputStream( file, true ) );
+            
+            for ( Integer i : input )
+            {
+                pw.write( Integer.toString( i ) );
             }
+            
             pw.write("\n");
+            
             pw.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } 
+        
+        catch ( Exception e ) 
+        {
+            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
         }
     }
 }

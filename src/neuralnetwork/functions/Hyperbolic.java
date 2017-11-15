@@ -4,19 +4,19 @@ package neuralnetwork.functions;
  * 
  * @author artur
  */
-public class Sigmoid 
-   implements 
-        Function
+public class Hyperbolic 
+    implements 
+        Function 
 {
     @Override
     public double evaluate( double arg )
     {
-        return ( 1 / ( 1 + Math.exp( -arg ) ) ); 
+        return Math.tanh( arg );
     }
 
     @Override
     public double evaluateDerived( double arg )
     {
-        return ( arg - Math.pow( arg, 2 ) );
+        return 1 - Math.pow( arg, 2);
     }
 }

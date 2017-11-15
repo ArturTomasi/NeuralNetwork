@@ -1,17 +1,19 @@
 package neuralnetwork.ui.pane;
 
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javafx.embed.swing.SwingNode;
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import neuralnetwork.ui.DrawingPanel;
 
 public class InputPane 
     extends 
-        JPanel
+        VBox
 {
+    public static final int PANEL_SIZE = 20;
+    
     public InputPane() 
     {
         initComponents();
@@ -34,18 +36,25 @@ public class InputPane
     
     private void initComponents()
     {
-        setBackground( Color.LIGHT_GRAY );
-        setPreferredSize( new Dimension( 410, 450 ) );
+        setPrefSize( 525, 575 );
+           
+        inputLabel = new Label( "Entrada:" );
+        inputLabel.setStyle( "-fx-padding: 10;" + 
+                             "-fx-font-weight: bolder;" +
+                             "-fx-font-size: 26pt;" +
+                             "-fx-font-family: \"Helvetica, Verdana, sans-serif\";" +
+                             "-fx-text-fill: #607D8B" );
         
-        inputLabel = new JLabel( "Entrada:" );
-        inputLabel.setFont( new Font( "Arial", 20, 30 ) );
-        
-        drawingPanel = new DrawingPanel(400, 400, 20 );
+        drawingPanel = new DrawingPanel( 500, 500, PANEL_SIZE );
 
-        add( inputLabel );
-        add( drawingPanel );
+        SwingNode embed = new SwingNode();
+        embed.setContent( drawingPanel );
+        
+        setMargin( embed, new Insets( 10 ) );
+            
+        getChildren().addAll( inputLabel, embed );
     }
     
     private DrawingPanel drawingPanel;
-    private JLabel inputLabel;
+    private Label inputLabel;
 }

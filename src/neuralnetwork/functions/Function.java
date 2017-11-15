@@ -6,5 +6,7 @@ package neuralnetwork.functions;
  */
 public interface Function 
 {
-    public  double evaluate( Object... args );
+    public double evaluate( double arg );
+    
+    public double evaluateDerived( double arg );
 }

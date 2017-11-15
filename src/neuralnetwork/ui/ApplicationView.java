@@ -1,12 +1,14 @@
 package neuralnetwork.ui;
 
-import java.awt.Color;
 import java.util.List;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javafx.application.Application;
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
 import neuralnetwork.data.Letter;
-import neuralnetwork.data.Train;
-import neuralnetwork.data.TrainingSet;
+import neuralnetwork.data.Network;
 import neuralnetwork.io.FileUtilities;
 import neuralnetwork.ui.pane.InputPane;
 import neuralnetwork.ui.pane.MenuPane;
@@ -15,46 +17,34 @@ import neuralnetwork.ui.pane.ResultPane;
 
 public class ApplicationView 
     extends 
-        JFrame 
+        Application 
 {
-    private Train networkTrainer;
+    private Network network;
 
     public ApplicationView() 
     {
-        super( "RNA para reconhecimento de caracteres" );
-
-        networkTrainer = new Train();
+        network = new Network( InputPane.PANEL_SIZE );
 
         initComponents();
-    }
-    
-    private void disabled() 
-    {
-    	this.setEnabled(false);
-    }
-
-    private void enabled() 
-    {
-    	this.setEnabled(true);
     }
     
     private void clear() 
     {
         inputPane.clear();
         resultPane.clear();
+        outputPane.clear();
     }
     
-    private  int transformFunction() 
+    private int transformFunction() 
     {
-        networkTrainer.setInputs( inputPane.getPixels() );
-
-        List<Double> outputs = networkTrainer.getOutputs();
+        double inputs  [] = network.converter( inputPane.getPixels() );
+        double outputs [] = network.recognize( inputs );
 
         int index = 0;
 
-        for ( int i = 0; i < outputs.size(); i++ )
+        for ( int i = 0; i < outputs.length; i++ )
         {
-            if ( outputs.get(i) != null && outputs.get(i) > outputs.get( index ) ) 
+            if ( outputs[i] > outputs[ index ] ) 
             {
                 index = i;
             }
@@ -72,87 +62,98 @@ public class ApplicationView
             resultPane.clear();
         }
 
+        menuPane.selectLetter( index );
+        
         return index;
     }
     
-    private void doTrain( Letter letter, int number )
+    private void doTrain( Letter letter )
     {
-        networkTrainer.addTrainingSet(new TrainingSet( inputPane.getPixels(), letter.getOutputs() ), letter);
+        List<Integer> pixels = inputPane.getPixels();
         
-        FileUtilities.saveToFile( inputPane.getPixels(), letter);
+        FileUtilities.saveInput( pixels, letter);
 
-        networkTrainer.train(number, letter);				
+        network.train( letter, network.converter( inputPane.getPixels() ) );				
 
         resultPane.setBackgroundResult(Letter.values()[transformFunction()]);
     }
     
-    
-     private void doTrainAll()
+     private void train()
      {
-        networkTrainer.trainAll();
+        network.train();
      }
-    
+     
+     @Override
+    public void start( Stage stage ) throws Exception 
+    {
+        initComponents();
+        
+        stage.setResizable( false );
+        stage.setTitle(  "RNA para reconhecimento de caracteres" );
+        stage.setScene( scene );
+        stage.show();
+    }
     
     private void initComponents()
     {
-        mainPane = new JPanel();
+        pane.setTop( menuPane );
+        pane.setLeft( inputPane );
+        pane.setCenter( resultPane );
+        pane.setRight( outputPane );
+
+        pane.setStyle( "-fx-background-color: #ECEFF1;" );
         
-        mainPane.setBackground( Color.WHITE );
+        menuPane.addEventHandler( MenuPane.Events.ON_CLEAR, new EventHandler<Event>() 
+        {
+            @Override
+            public void handle(Event event) 
+            {
+                clear();
+            }
+        } );
         
-        setContentPane( mainPane );
+        menuPane.addEventHandler( MenuPane.Events.ON_LOAD, new EventHandler<Event>() 
+        {
+            @Override
+            public void handle(Event event) 
+            {
+                train();
+            }
+        } );
         
-        mainPane.add( inputPane );
+        menuPane.addEventHandler( MenuPane.Events.ON_TRAIN, new EventHandler<Event>() 
+        {
+            @Override
+            public void handle(Event event) 
+            {
+                doTrain( menuPane.selectLetter() );
+            }
+        } );
         
-        mainPane.add( menuPane );
+        menuPane.addEventHandler( MenuPane.Events.ON_RECOGNIZE, new EventHandler<Event>() 
+        {
+            @Override
+            public void handle(Event event) 
+            {
+                transformFunction();
+            }
+        } );
         
-        mainPane.add( resultPane );
-        
-        mainPane.add( outputPane );
-        
-        setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
+        menuPane.addEventHandler( MenuPane.Events.ON_CONFIG, new EventHandler<Event>() 
+        {
+            @Override
+            public void handle(Event event) 
+            {
+                network.reload();
+            }
+        } );
     }
     
-    private JPanel mainPane;
+    private BorderPane pane = new BorderPane();
+    private Scene scene = new Scene( pane );
     
     private InputPane inputPane   = new InputPane();
     private OutputPane outputPane = new OutputPane();
     private ResultPane resultPane = new ResultPane();
-
-    private MenuPane menuPane     = new MenuPane()
-    {
-        @Override
-        public void clear() 
-        {
-           ApplicationView.this.clear();
-        }
-        
-        @Override
-        public int transformFunction() 
-        {
-            return ApplicationView.this.transformFunction();
-        }
-        
-        @Override
-        public void disabled() 
-        {
-            ApplicationView.this.disabled();
-        }
-
-        @Override
-        public void enabled()
-        {
-            ApplicationView.this.enabled();
-        }
-
-        @Override
-        public void doTrain( Letter letter, int number )
-        {
-            ApplicationView.this.doTrain( letter, number );
-        }
-
-        @Override
-        public void doTrainAll() {
-            ApplicationView.this.doTrainAll();
-        }
-    };
+    private MenuPane menuPane     = new MenuPane();
 }

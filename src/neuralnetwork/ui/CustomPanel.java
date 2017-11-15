@@ -70,7 +70,7 @@ public class CustomPanel
 
         return pixels;
     }
-
+    
     public void clear() 
     {
         sections.stream().forEach( s -> { s.setActive( false ); } );
