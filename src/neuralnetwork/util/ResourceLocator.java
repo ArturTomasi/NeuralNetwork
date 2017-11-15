@@ -33,6 +33,6 @@ public class ResourceLocator
     
     public String getPathText( String name )
     {
-        return getClass().getResource( "/neuralnetwork/assets/txt/" + name ).getPath();
+        return "resources/" + name;
     }
 }
