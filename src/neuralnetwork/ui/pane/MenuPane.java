@@ -2,7 +2,6 @@ package neuralnetwork.ui.pane;
 
 import javafx.collections.FXCollections;
 import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
@@ -13,23 +12,40 @@ import neuralnetwork.data.Letter;
 import neuralnetwork.ui.parts.ActionButton;
 import neuralnetwork.ui.parts.ConfigEditor;
 import neuralnetwork.ui.parts.EditorCallback;
+import neuralnetwork.util.GenericObserver;
 
 
 public class MenuPane 
     extends 
         HBox
 {
-    public static final class Events
+    public static enum Events
     {
-        public static final EventType ON_RECOGNIZE = new EventType( "onRecognize" );
-        public static final EventType ON_CLEAR     = new EventType( "onClear" );
-        public static final EventType ON_TRAIN     = new EventType( "onTrain" );
-        public static final EventType ON_LOAD      = new EventType( "onLoad" );
-        public static final EventType ON_CONFIG    = new EventType( "onConfig" );
+        ON_RECOGNIZE(),
+        ON_CLEAR(),
+        ON_TRAIN(),
+        ON_LOAD(),
+        ON_CONFIG();
+        
+        private Letter letter;
+
+        public Letter getLetter() 
+        {
+            return letter;
+        }
+
+        public void setLetter( Letter letter ) 
+        {
+            this.letter = letter;
+        }
     }
     
-    public MenuPane() 
+    private GenericObserver _observer;
+    
+    public MenuPane( GenericObserver observer ) 
     {
+        this._observer = observer;
+        
         initComponents();
     }
             
@@ -41,13 +57,15 @@ public class MenuPane
     
     public Letter selectLetter()
     {
-        return trainAsComboBox.getSelectionModel().getSelectedItem();
+        return trainAsComboBox.getValue();
     }
     
     
-    private void fire( EventType type )
+    private void send( Events event )
     {
-        fireEvent( new Event( type ) );
+        event.setLetter( selectLetter() );
+        
+        _observer.notify( event );
     }
     
     private void initComponents()
@@ -95,7 +113,7 @@ public class MenuPane
         @Override
         public void onEvent( Event t )
         {
-            fire( Events.ON_CLEAR );
+            send( Events.ON_CLEAR );
         }
     } );
     
@@ -104,7 +122,7 @@ public class MenuPane
         @Override
         public void onEvent( Event t ) 
         {
-            fire( Events.ON_RECOGNIZE );
+            send( Events.ON_RECOGNIZE );
         }
     } );
     
@@ -114,7 +132,10 @@ public class MenuPane
         @Override
         public void onEvent( Event t ) 
         {
-            Thread thread = new Thread( () -> fire( Events.ON_LOAD ) );
+            Thread thread = new Thread( () -> 
+            {
+                send( Events.ON_LOAD ); 
+            } );
             
             thread.setDaemon( true );
             thread.start();
@@ -126,7 +147,10 @@ public class MenuPane
         @Override
         public void onEvent( Event t ) 
         {
-            Thread thread = new Thread( () -> fire( Events.ON_TRAIN ) );
+            Thread thread = new Thread( () -> 
+            {
+                send( Events.ON_TRAIN );
+            } );
             
             thread.setDaemon( true );
             thread.start();
@@ -143,7 +167,7 @@ public class MenuPane
                 @Override
                 public void handle(Event event) 
                 {
-                    fire( Events.ON_CONFIG );
+                    send( Events.ON_CONFIG );
                 }
             } ).show();
         }

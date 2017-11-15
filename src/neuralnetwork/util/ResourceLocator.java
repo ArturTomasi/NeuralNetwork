@@ -21,20 +21,18 @@ public class ResourceLocator
     
     public String getImage( String name )
     {
-        
-        return getClass().getResource( "/neuralnetwork/assets/img/" + name ).toString() + File.separator;
-                
+        return getClass().getResource( "/neuralnetwork/assets/img/" + name ).toString();
     }
     
     
     public File getFileText( String name )
     {
-        return new File( "resources/" + name );
+        return new File( getPathText( name ) );
     }
     
     
     public String getPathText( String name )
     {
-        return "resources/" + name;
+        return getClass().getResource( "/neuralnetwork/assets/txt/" + name ).getPath();
     }
 }

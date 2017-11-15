@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 import neuralnetwork.functions.Sigmoid;
 import neuralnetwork.io.FileUtilities;
-import neuralnetwork.util.ConfigurationManager;
 
 /**
  * 
@@ -15,7 +14,8 @@ public class Network
     private MultiLayerPerceptron _network;
     
     private int sizePanel;
-    private int _looping = 500;
+    private int _looping   = 500;
+    private double  _error = 0.03;
     
     /**
      * Network
@@ -25,7 +25,7 @@ public class Network
     public Network( int sizePanel )
     {
         this.sizePanel = sizePanel;
-        
+
         /**
          * Inicializa as Rede
          * 
@@ -53,19 +53,29 @@ public class Network
         /**
          * Percore cada uma das letras 
          */
-        for(int i = 0; i < _looping; i++)
+        loop : for ( Letter letter : Letter.values() )
         {
-            for ( Letter letter : Letter.values() )
+            for( int i = 0; i < _looping; i++ )
             {
                 List<double[]> inputs = letterMapping.get( letter );
 
+                double error = 1d;
+                
                 /**
                  * Realiza o treinamento assistido por backpropagations
                  */
                 for ( double[] bytes : inputs )
                 {
-                    double error = _network.backpropagation( bytes, letter.getOutputs() );
-
+                    error = _network.backpropagation( bytes, letter.getOutputs() );
+                    
+                    /**
+                     * Controla taxa de error aceitavel
+                     */
+                    if ( error < _error )
+                    {
+                        continue loop;
+                    }
+                    
                     System.out.println( letter + " foi treina a uma taxa de erro: " + error );
                 }
             }
@@ -75,25 +85,40 @@ public class Network
     public void train( Letter letter, double[] inputs )
     {
         /**
-        * Realiza o treinamento assistido por backpropagations
-        */
-        double error =_network.backpropagation( inputs, letter.getOutputs() );
+         * Realiza o treinamento assistido por backpropagations
+         */
+        for( int i = 0; i < _looping; i++ )
+        {
+            double error =_network.backpropagation( inputs, letter.getOutputs() );
+            
+            /**
+             * Controla taxa de error aceitavel
+             */
+            if ( error < _error )
+            {
+                break;
+            }
 
-        System.out.println( letter + " foi treina a uma taxa de erro: " + error );
+            
+            System.out.println( letter + " foi treina a uma taxa de erro: " + error );
+        }
     }
     
     /**
+     * configurate
+     * 
+     * @param config 
+     * 
      * Recarega Rede com novos parametros configurados
      */
-    public void reload()
+    public void configurate( Configuration config )
     {
-        _looping = ConfigurationManager.getInstance().getInt( "network.looping" );
+        _looping = config.getInt( "network.looping" );
+        _error   = config.getDouble( "network.error" );
         
-        int _layers = ConfigurationManager.getInstance().getInt( "network.hidden.layers" );
-        int _neurons = ConfigurationManager.getInstance().getInt( "network.hidden.neurons" );
-        
-        
-        double _learning = ConfigurationManager.getInstance().getDouble( "network.learning" );
+        int _layers      = config.getInt( "network.hidden.layers" );
+        int _neurons     = config.getInt( "network.hidden.neurons" );
+        double _learning = config.getDouble( "network.learning" );
         
         Integer nLayers [] = new Integer[ _layers + 2 ];
         

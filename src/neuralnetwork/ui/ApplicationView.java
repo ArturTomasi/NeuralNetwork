@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Dialog;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import neuralnetwork.data.Letter;
@@ -14,6 +15,8 @@ import neuralnetwork.ui.pane.InputPane;
 import neuralnetwork.ui.pane.MenuPane;
 import neuralnetwork.ui.pane.OutputPane;
 import neuralnetwork.ui.pane.ResultPane;
+import neuralnetwork.util.ConfigurationManager;
+import neuralnetwork.util.GenericObserver;
 
 public class ApplicationView 
     extends 
@@ -33,6 +36,22 @@ public class ApplicationView
         inputPane.clear();
         resultPane.clear();
         outputPane.clear();
+    }
+    
+    private void disable()
+    {
+        inputPane.setDisable( true );
+        resultPane.setDisable( true );
+        outputPane.setDisable( true );
+        pane.setOpacity( 0.3 );
+    }
+    
+    private void enabled()
+    {
+        inputPane.setDisable( false );
+        resultPane.setDisable( false );
+        outputPane.setDisable( false );
+        pane.setOpacity( 1.0 );   
     }
     
     private int transformFunction() 
@@ -69,18 +88,26 @@ public class ApplicationView
     
     private void doTrain( Letter letter )
     {
+        disable();
+        
         List<Integer> pixels = inputPane.getPixels();
         
         FileUtilities.saveInput( pixels, letter);
 
         network.train( letter, network.converter( inputPane.getPixels() ) );				
 
-        resultPane.setBackgroundResult(Letter.values()[transformFunction()]);
+        resultPane.setBackgroundResult( Letter.values()[ transformFunction() ]);
+        
+        enabled();
     }
     
      private void train()
      {
+        disable();
+        
         network.train();
+        
+        enabled();
      }
      
      @Override
@@ -102,51 +129,6 @@ public class ApplicationView
         pane.setRight( outputPane );
 
         pane.setStyle( "-fx-background-color: #ECEFF1;" );
-        
-        menuPane.addEventHandler( MenuPane.Events.ON_CLEAR, new EventHandler<Event>() 
-        {
-            @Override
-            public void handle(Event event) 
-            {
-                clear();
-            }
-        } );
-        
-        menuPane.addEventHandler( MenuPane.Events.ON_LOAD, new EventHandler<Event>() 
-        {
-            @Override
-            public void handle(Event event) 
-            {
-                train();
-            }
-        } );
-        
-        menuPane.addEventHandler( MenuPane.Events.ON_TRAIN, new EventHandler<Event>() 
-        {
-            @Override
-            public void handle(Event event) 
-            {
-                doTrain( menuPane.selectLetter() );
-            }
-        } );
-        
-        menuPane.addEventHandler( MenuPane.Events.ON_RECOGNIZE, new EventHandler<Event>() 
-        {
-            @Override
-            public void handle(Event event) 
-            {
-                transformFunction();
-            }
-        } );
-        
-        menuPane.addEventHandler( MenuPane.Events.ON_CONFIG, new EventHandler<Event>() 
-        {
-            @Override
-            public void handle(Event event) 
-            {
-                network.reload();
-            }
-        } );
     }
     
     private BorderPane pane = new BorderPane();
@@ -155,5 +137,30 @@ public class ApplicationView
     private InputPane inputPane   = new InputPane();
     private OutputPane outputPane = new OutputPane();
     private ResultPane resultPane = new ResultPane();
-    private MenuPane menuPane     = new MenuPane();
+    
+    private MenuPane menuPane     = new MenuPane( new GenericObserver<MenuPane.Events>() 
+    {
+        @Override
+        public void notify( MenuPane.Events source) 
+        {
+            switch ( source )
+            {
+                case ON_CLEAR:
+                    clear();
+                break;
+                case ON_RECOGNIZE:
+                    transformFunction();
+                break;
+                case ON_LOAD:
+                    train();
+                break;
+                case ON_TRAIN:
+                    doTrain( source.getLetter() );
+                break;
+                case ON_CONFIG:
+                    network.configurate( ConfigurationManager.getInstance() );
+                break;
+            }
+        }
+    } );
 }

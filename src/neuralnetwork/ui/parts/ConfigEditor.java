@@ -22,7 +22,7 @@ public class ConfigEditor
         
         setHeaderText( "Editor de Configurações" );
 
-        setSource(source);
+        setSource( source );
     } 
     
     
@@ -33,6 +33,7 @@ public class ConfigEditor
         ConfigurationManager.getInstance().putProperty( "network.hidden.neurons",  neuronField.getInt() );
         ConfigurationManager.getInstance().putProperty( "network.looping",         loopingField.getInt() );
         ConfigurationManager.getInstance().putProperty( "network.learning",        learningField.getDouble() );
+        ConfigurationManager.getInstance().putProperty( "network.error",           errorField.getDouble() );
     }
     
     
@@ -51,6 +52,7 @@ public class ConfigEditor
         neuronField.setInteger( ConfigurationManager.getInstance().getInt( "network.hidden.neurons" ) );
         loopingField.setInteger( ConfigurationManager.getInstance().getInt( "network.looping" ) );
         learningField.setDouble( ConfigurationManager.getInstance().getDouble( "network.learning" ) );
+        errorField.setDouble( ConfigurationManager.getInstance().getDouble( "network.error" ) );
     }
     
     private void initComponents()
@@ -71,6 +73,9 @@ public class ConfigEditor
         gridPane.add( lbLooping,         0, 3, 1, 1 );
         gridPane.add( loopingField,      1, 3, 3, 1 );
         
+        gridPane.add( lbError,           0, 4, 1, 1 );
+        gridPane.add( errorField,        1, 4, 3, 1 );
+        
         getDialogPane().setContent( gridPane );
     }
     
@@ -85,6 +90,9 @@ public class ConfigEditor
     private Label lbLearning                = new Label( "Taxa Aprendizado");
     private NumberTextField learningField   = new NumberTextField();
     
-    private Label lbLooping                 = new Label( "Quantidade de repetições" );
+    private Label lbLooping                 = new Label( "Quantidade de Interações" );
     private NumberTextField loopingField    = new NumberTextField();
+    
+    private Label lbError                   = new Label( "Erro Máximo" );
+    private NumberTextField errorField      = new NumberTextField();
 }
