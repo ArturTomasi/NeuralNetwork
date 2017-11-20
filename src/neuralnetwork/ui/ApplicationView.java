@@ -2,10 +2,8 @@ package neuralnetwork.ui;
 
 import java.util.List;
 import javafx.application.Application;
-import javafx.event.Event;
-import javafx.event.EventHandler;
+import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Dialog;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import neuralnetwork.data.Letter;
@@ -59,29 +57,34 @@ public class ApplicationView
         double inputs  [] = network.converter( inputPane.getPixels() );
         double outputs [] = network.recognize( inputs );
 
-        int index = 0;
+        int _index = 0;
 
         for ( int i = 0; i < outputs.length; i++ )
         {
-            if ( outputs[i] > outputs[ index ] ) 
+            if ( outputs[i] > outputs[ _index ] ) 
             {
-                index = i;
+                _index = i;
             }
         }
 
-        outputPane.setOutputs( outputs );
-
-        if( index <= 25 ) 
+        final int index = _index;
+        
+        Platform.runLater( () -> 
         {
-            resultPane.setBackgroundResult( Letter.values()[index] );
-        } 
+            outputPane.setOutputs( outputs );
 
-        else 
-        {
-            resultPane.clear();
-        }
+            if( index <= 25 ) 
+            {
+                resultPane.setBackgroundResult( Letter.values()[index] );
+            } 
 
-        menuPane.selectLetter( index );
+            else 
+            {
+                resultPane.clear();
+            }
+
+            menuPane.selectLetter( index );
+        } );
         
         return index;
     }

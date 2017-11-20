@@ -29,10 +29,11 @@ public class ConfigurationManager
     public ConfigurationManager()
     {
         properties.put( "network.hidden.layers",   1 );
-        properties.put( "network.hidden.neurons",  800 );
+        properties.put( "network.hidden.neurons",  200 );
         properties.put( "network.learning",        0.6 );
         properties.put( "network.looping",         500 );
         properties.put( "network.error",           0.03 );
+        properties.put( "network.function",        "Sigmoid" );
     }
 
     @Override

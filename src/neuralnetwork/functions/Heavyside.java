@@ -24,4 +24,10 @@ public class Heavyside
     {
         return 1d;
     }
+    
+    @Override
+    protected Object clone() throws CloneNotSupportedException
+    {
+        return super.clone();
+    }
 }

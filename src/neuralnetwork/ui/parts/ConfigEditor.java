@@ -1,5 +1,7 @@
 package neuralnetwork.ui.parts;
 
+import javafx.collections.FXCollections;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import neuralnetwork.util.ConfigurationManager;
@@ -34,6 +36,7 @@ public class ConfigEditor
         ConfigurationManager.getInstance().putProperty( "network.looping",         loopingField.getInt() );
         ConfigurationManager.getInstance().putProperty( "network.learning",        learningField.getDouble() );
         ConfigurationManager.getInstance().putProperty( "network.error",           errorField.getDouble() );
+        ConfigurationManager.getInstance().putProperty( "network.function",        functionField.getValue() );
     }
     
     
@@ -53,6 +56,7 @@ public class ConfigEditor
         loopingField.setInteger( ConfigurationManager.getInstance().getInt( "network.looping" ) );
         learningField.setDouble( ConfigurationManager.getInstance().getDouble( "network.learning" ) );
         errorField.setDouble( ConfigurationManager.getInstance().getDouble( "network.error" ) );
+        functionField.setValue( ConfigurationManager.getInstance().getProperty( "network.function" ) );
     }
     
     private void initComponents()
@@ -76,6 +80,9 @@ public class ConfigEditor
         gridPane.add( lbError,           0, 4, 1, 1 );
         gridPane.add( errorField,        1, 4, 3, 1 );
         
+        gridPane.add( lbFunction,        0, 5, 1, 1 );
+        gridPane.add( functionField,     1, 5, 3, 1 );
+        
         getDialogPane().setContent( gridPane );
     }
     
@@ -95,4 +102,7 @@ public class ConfigEditor
     
     private Label lbError                   = new Label( "Erro Máximo" );
     private NumberTextField errorField      = new NumberTextField();
+    
+    private Label lbFunction                = new Label( "Função de Transferência" );
+    private ComboBox functionField          = new ComboBox( FXCollections.observableArrayList( "Sigmoid", "Heavyside", "Hyperbolic" ) );
 }

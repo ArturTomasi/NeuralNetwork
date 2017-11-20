@@ -2,6 +2,7 @@ package neuralnetwork.data;
 
 import java.util.List;
 import java.util.Map;
+import neuralnetwork.functions.FunctionPrototypeFactory;
 import neuralnetwork.functions.Sigmoid;
 import neuralnetwork.io.FileUtilities;
 
@@ -35,7 +36,7 @@ public class Network
          * 20  na camada oculta 
          * 26  na saida (letras)
          */
-        _network = new MultiLayerPerceptron( new Sigmoid(), MultiLayerPerceptron.LEARNING_RATIO, sizePanel*sizePanel, sizePanel, Letter.values().length );
+        _network = new MultiLayerPerceptron( FunctionPrototypeFactory.makeSigmoid(), MultiLayerPerceptron.LEARNING_RATIO, sizePanel*sizePanel, sizePanel, Letter.values().length );
     }
     
     /**
@@ -53,9 +54,9 @@ public class Network
         /**
          * Percore cada uma das letras 
          */
-        loop : for ( Letter letter : Letter.values() )
+        for( int i = 0; i < _looping; i++ )
         {
-            for( int i = 0; i < _looping; i++ )
+            loop : for ( Letter letter : Letter.values() )
             {
                 List<double[]> inputs = letterMapping.get( letter );
 
@@ -71,10 +72,7 @@ public class Network
                     /**
                      * Controla taxa de error aceitavel
                      */
-                    if ( error < _error )
-                    {
-                        continue loop;
-                    }
+                    if ( error < _error ) continue loop;
                     
                     System.out.println( letter + " foi treina a uma taxa de erro: " + error );
                 }
@@ -99,7 +97,6 @@ public class Network
                 break;
             }
 
-            
             System.out.println( letter + " foi treina a uma taxa de erro: " + error );
         }
     }
@@ -119,6 +116,7 @@ public class Network
         int _layers      = config.getInt( "network.hidden.layers" );
         int _neurons     = config.getInt( "network.hidden.neurons" );
         double _learning = config.getDouble( "network.learning" );
+        String _function = String.valueOf( config.getProperty( "network.function" ) );
         
         Integer nLayers [] = new Integer[ _layers + 2 ];
         
@@ -140,7 +138,7 @@ public class Network
          */
         nLayers[ nLayers.length -1 ] = Letter.values().length;
         
-        _network = new MultiLayerPerceptron( new Sigmoid(), _learning, nLayers );
+        _network = new MultiLayerPerceptron( FunctionPrototypeFactory.makeFunction( _function ), _learning, nLayers );
     }
             
     /**

@@ -19,4 +19,10 @@ public class Sigmoid
     {
         return ( arg - Math.pow( arg, 2 ) );
     }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException 
+    {
+        return super.clone();
+    }
 }
