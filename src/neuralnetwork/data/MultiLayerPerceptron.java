@@ -95,17 +95,28 @@ public class MultiLayerPerceptron
                 
                 for( j = 0; j < _layers[ k - 1 ].size; j++ )
                 {
+                    /**
+                     * Multiplica o peso gerado aleatoriamente pelo valor dos neurônios da camada anterior
+                     * Somando o novo valor para o neurônio da camada k 
+                     */
                     new_value += _layers[ k ].neurons[ i ].weights[ j ] * _layers[ k - 1 ].neurons[ j ].value;
                 }
-
+                /**
+                 * Acrescenta o valor do bias no novo valor
+                 */
                 new_value += _layers[ k ].neurons[ i ].bias;
-
+                    
+                /**
+                 * Aplica a função de transferência de pesos sobre o novo valor,
+                 * atribuindo esse valor para o neurônio i dessa camada k.
+                 */
                 _layers[ k ].neurons[ i ].value = _transferFunction.evaluate( new_value );
             }
         }
         
         /**
-         * Repassa o outup gerado na execucao dos neuronios acima, buscando entao os valores da ultima camada
+         * Repassa o valor gerado na execucao dos neuronios da ultima camada.
+         * Esses valores serão utilizados no backtracking para o calculo do ERRO
          */
         for( i = 0; i < _layers[ _layers.length - 1].size; i++ )
         {
