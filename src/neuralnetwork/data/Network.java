@@ -3,7 +3,6 @@ package neuralnetwork.data;
 import java.util.List;
 import java.util.Map;
 import neuralnetwork.functions.FunctionPrototypeFactory;
-import neuralnetwork.functions.Sigmoid;
 import neuralnetwork.io.FileUtilities;
 
 /**
@@ -17,6 +16,8 @@ public class Network
     private int sizePanel;
     private int _looping   = 500;
     private double  _error = 0.03;
+    
+    private FunctionPrototypeFactory _functionFactory = new FunctionPrototypeFactory();
     
     /**
      * Network
@@ -36,7 +37,7 @@ public class Network
          * 20  na camada oculta 
          * 26  na saida (letras)
          */
-        _network = new MultiLayerPerceptron( FunctionPrototypeFactory.makeSigmoid(), MultiLayerPerceptron.LEARNING_RATIO, sizePanel*sizePanel, sizePanel, Letter.values().length );
+        _network = new MultiLayerPerceptron( _functionFactory.makeSigmoid(), MultiLayerPerceptron.LEARNING_RATIO, sizePanel*sizePanel, sizePanel, Letter.values().length );
     }
     
     /**
@@ -54,32 +55,50 @@ public class Network
         /**
          * Percore cada uma das letras 
          */
-        for( int i = 0; i < _looping; i++ )
+        double i, error = 0;
+        
+        for( i = 0; i < 1500; i++ )
         {
-            loop : for ( Letter letter : Letter.values() )
+            error = 0d;
+            
+            for ( Letter letter : Letter.values() )
             {
                 List<double[]> inputs = letterMapping.get( letter );
 
-                double error = 1d;
-                
                 /**
                  * Realiza o treinamento assistido por backpropagations
                  */
                 for ( double[] bytes : inputs )
                 {
-                    error = _network.backpropagation( bytes, letter.getOutputs() );
+                    double e = _network.backpropagation( bytes, letter.getOutputs() );
                     
-                    /**
-                     * Controla taxa de error aceitavel
-                     */
-                    if ( error < _error ) continue loop;
+//                    System.out.println( letter + " foi treina a uma taxa de erro: " + e );
                     
-                    System.out.println( letter + " foi treina a uma taxa de erro: " + error );
+                    error += e;
                 }
             }
+
+            /**
+             * Controla taxa de error aceitavel
+             */
+            System.out.println( "Média de treinamento: " + error / Letter.values().length );
+
+            if ( ( error / Letter.values().length )  < _error ) break;
         }
+        
+        System.out.println("##############################################");
+        System.out.println("Looping: " + i );
+        System.out.println("Error: " + error / Letter.values().length );
+        System.out.println("##############################################");
+        
+        FileUtilities.saveNetwork( _network );
     }
     
+    /**
+     * 
+     * @param letter
+     * @param inputs 
+     */
     public void train( Letter letter, double[] inputs )
     {
         /**
@@ -92,13 +111,12 @@ public class Network
             /**
              * Controla taxa de error aceitavel
              */
-            if ( error < _error )
-            {
-                break;
-            }
+            if ( error < _error ) break;
 
             System.out.println( letter + " foi treina a uma taxa de erro: " + error );
         }
+        
+        FileUtilities.saveNetwork( _network );
     }
     
     /**
@@ -138,9 +156,32 @@ public class Network
          */
         nLayers[ nLayers.length -1 ] = Letter.values().length;
         
-        _network = new MultiLayerPerceptron( FunctionPrototypeFactory.makeFunction( _function ), _learning, nLayers );
-    }
+    
+        if ( _network.getLayers().length != _layers )
+        {
+            _network = new MultiLayerPerceptron( _functionFactory.makeFunction( _function ), _learning, nLayers );
+        }
             
+        _network.setLearning( _learning );
+        _network.setTransferFunction( _functionFactory.makeFunction( _function ) );
+        
+        
+        FileUtilities.saveNetwork( _network );
+    }
+    
+    /**
+     * loadNetwork
+     */
+    public void loadNetwork()
+    {
+        Object obj = FileUtilities.loadNetwork();
+        
+        if ( obj instanceof MultiLayerPerceptron )
+        {
+            _network = MultiLayerPerceptron.class.cast( obj );
+        }
+    }
+    
     /**
      * recognize
      * 

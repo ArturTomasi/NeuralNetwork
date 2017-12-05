@@ -1,6 +1,10 @@
 package neuralnetwork.data;
 
+import java.io.Serializable;
+
 public class Neuron 
+    implements 
+        Serializable
 {
     protected double value, delta, bias;
     protected int previousLayerSize;

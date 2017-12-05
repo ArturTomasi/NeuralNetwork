@@ -113,6 +113,15 @@ public class ApplicationView
         enabled();
      }
      
+     private void loadNetwork()
+     {
+        disable();
+        
+        network.loadNetwork();
+        
+        enabled();
+     }
+     
      @Override
     public void start( Stage stage ) throws Exception 
     {
@@ -154,8 +163,11 @@ public class ApplicationView
                 case ON_RECOGNIZE:
                     transformFunction();
                 break;
-                case ON_LOAD:
+                case ON_LOAD_LETTER:
                     train();
+                break;
+                case ON_LOAD_NETWORK:
+                    loadNetwork();
                 break;
                 case ON_TRAIN:
                     doTrain( source.getLetter() );

@@ -91,13 +91,13 @@ public class ConfigEditor
     private Label lbLayers                  = new Label( "Camadas Ocultas");
     private NumberTextField layersField     = new NumberTextField();
     
-    private Label lbNeuron                  = new Label( "Neuronios Ocultos");
+    private Label lbNeuron                  = new Label( "Neurônios Ocultos");
     private NumberTextField neuronField     = new NumberTextField();
     
     private Label lbLearning                = new Label( "Taxa Aprendizado");
     private NumberTextField learningField   = new NumberTextField();
     
-    private Label lbLooping                 = new Label( "Quantidade de Interações" );
+    private Label lbLooping                 = new Label( "Quantidade de Iterações" );
     private NumberTextField loopingField    = new NumberTextField();
     
     private Label lbError                   = new Label( "Erro Máximo" );

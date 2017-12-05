@@ -24,7 +24,8 @@ public class MenuPane
         ON_RECOGNIZE(),
         ON_CLEAR(),
         ON_TRAIN(),
-        ON_LOAD(),
+        ON_LOAD_LETTER(),
+        ON_LOAD_NETWORK(),
         ON_CONFIG();
         
         private Letter letter;
@@ -91,13 +92,14 @@ public class MenuPane
         sep2.setStyle( "-fx-background-color: #607D8B; " +
                        "-fx-border-color: #ECEFF1;"  );
         
-        getChildren().addAll( loadButton, recognizeButton, clearButton, 
+        getChildren().addAll( loadNetworkButton, loadButton, recognizeButton, clearButton, 
                               sep1, 
                               trainAsComboBox, trainNetworkButton, 
                               sep2,
                               configButton );
         
         setMargin( loadButton, new Insets( 10 ) );
+        setMargin( loadNetworkButton, new Insets( 10 ) );
         setMargin( recognizeButton, new Insets( 10 ) );
         setMargin( clearButton, new Insets( 10 ) );
         setMargin( trainAsComboBox, new Insets( 10 ) );
@@ -127,14 +129,29 @@ public class MenuPane
     } );
     
     
-    private ActionButton loadButton = new  ActionButton( "Carregar Treinamento", new ActionButton.ActionHandler()
+    private ActionButton loadButton = new  ActionButton( "Carregar Letras", new ActionButton.ActionHandler()
     {
         @Override
         public void onEvent( Event t ) 
         {
             Thread thread = new Thread( () -> 
             {
-                send( Events.ON_LOAD ); 
+                send( Events.ON_LOAD_LETTER ); 
+            } );
+            
+            thread.setDaemon( true );
+            thread.start();
+        }
+    } );
+    
+    private ActionButton loadNetworkButton = new  ActionButton( "Carregar Rede Neural", new ActionButton.ActionHandler()
+    {
+        @Override
+        public void onEvent( Event t ) 
+        {
+            Thread thread = new Thread( () -> 
+            {
+                send( Events.ON_LOAD_NETWORK ); 
             } );
             
             thread.setDaemon( true );

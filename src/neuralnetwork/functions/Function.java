@@ -1,12 +1,14 @@
 package neuralnetwork.functions;
 
+import java.io.Serializable;
+
 /**
  *
  * @author artur
  */
 public interface Function 
     extends 
-        Cloneable
+        Cloneable, Serializable
 {
     public double evaluate( double arg );
     

@@ -17,6 +17,10 @@ import java.util.logging.Logger;
  */
 public class FileUtilities 
 {
+    /**
+     * 
+     * @return 
+     */
     public static Map<Letter, List<double[]>> loadInputs()
     {
         Map<Letter, List<double[]>> letterInput = new HashMap();
@@ -53,6 +57,11 @@ public class FileUtilities
         return letterInput;
     }
     
+    /**
+     * 
+     * @param input
+     * @param filename 
+     */
     public static void saveInput( List<Integer> input, Letter filename )
     {
         try 
@@ -75,5 +84,51 @@ public class FileUtilities
         {
             Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
         }
+    }
+    
+    /**
+     * 
+     * @param clazz 
+     */
+    public static void saveNetwork( Serializable clazz )
+    {
+        try
+        {
+            File file = ResourceLocator.getInstance().getFileText( "LetterRecognize.network" );
+            
+            FileOutputStream fout = new FileOutputStream( file );
+            ObjectOutputStream oos = new ObjectOutputStream(fout);
+            oos.writeObject( clazz );
+            oos.close();
+        }
+        
+        catch ( Exception e ) 
+        {
+            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
+        }
+    }
+    
+    /**
+     * 
+     * @return 
+     */
+    public static Object loadNetwork()
+    {
+        try
+        {
+            File file = ResourceLocator.getInstance().getFileText( "LetterRecognize.network" );
+            
+            FileInputStream fin = new FileInputStream( file );
+            ObjectInputStream ois = new ObjectInputStream( fin );
+            
+            return ois.readObject();
+        }
+        
+        catch ( Exception e ) 
+        {
+            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
+        }
+        
+        return null;
     }
 }

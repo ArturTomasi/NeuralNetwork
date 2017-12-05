@@ -1,9 +1,13 @@
 package neuralnetwork.data;
 
+import java.io.Serializable;
+
 /**
  * @author artur
  */
 public class Layer 
+    implements 
+        Serializable
 {
     protected Neuron[] neurons;
     protected int size;

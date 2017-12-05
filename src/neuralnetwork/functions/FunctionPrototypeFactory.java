@@ -9,26 +9,18 @@ import java.util.logging.Logger;
  */
 public class FunctionPrototypeFactory 
 {
-    private static Sigmoid sigmoid       = new Sigmoid();
-    private static Heavyside heavyside   = new Heavyside();
-    private static Hyperbolic hyperbolic = new Hyperbolic();
+    private Sigmoid sigmoid;
+    private Heavyside heavyside;
+    private Hyperbolic hyperbolic;
     
-    public static Function makeSigmoid()
+    public FunctionPrototypeFactory()
     {
-        try
-        {
-            return (Function) sigmoid.clone();
-        }
-        
-        catch ( Exception e )
-        {
-            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
-        }
-        
-        return null;
+        heavyside  = new Heavyside();
+        hyperbolic = new Hyperbolic();
+        sigmoid    = new Sigmoid();
     }
     
-    public static Function makeFunction( String function )
+    public Function makeFunction( String function )
     {
         switch ( function )
         {
@@ -43,7 +35,22 @@ public class FunctionPrototypeFactory
         }
     }
     
-    public static Function makeHeavyside()
+    public Function makeSigmoid()
+    {
+        try
+        {
+            return (Function) sigmoid.clone();
+        }
+        
+        catch ( Exception e )
+        {
+            Logger.getGlobal().log( Level.SEVERE, e.getMessage() );
+        }
+        
+        return null;
+    }
+    
+    public Function makeHeavyside()
     {
         try
         {
@@ -58,7 +65,7 @@ public class FunctionPrototypeFactory
         return null;
     }
     
-    public static Function makeHyperbolic()
+    public Function makeHyperbolic()
     {
         try
         {

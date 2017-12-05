@@ -1,12 +1,17 @@
 package neuralnetwork.data;
 
+import java.io.Serializable;
 import neuralnetwork.functions.Function;
 
 /**
  * @author artur
  */
 public class MultiLayerPerceptron 
+    implements 
+        Cloneable, Serializable
 {
+    private static final long serialVersionUID = -7830597081189326543L;
+    
     public static double LEARNING_RATIO = 0.6;
     
     private double _learning;
@@ -50,6 +55,43 @@ public class MultiLayerPerceptron
         }
     }
 
+    /**
+     * setTransferFunction
+     * 
+     * @param transferFunction 
+     */
+    public void setTransferFunction( Function transferFunction )
+    {
+        this._transferFunction = transferFunction;
+    }
+
+    /**
+     * 
+     * @param learning 
+     */
+    public void setLearning( double learning )
+    {
+        this._learning = learning;
+    }
+
+    /**
+     * 
+     * @param layers 
+     */
+    public void setLayers( Layer[] layers ) 
+    {
+        this._layers = layers;
+    }
+
+    /**
+     * 
+     * @return 
+     */
+    public Layer[] getLayers() 
+    {
+        return _layers;
+    }
+    
     /**
      * execute
      * 
