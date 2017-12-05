@@ -57,7 +57,7 @@ public class Network
          */
         double i, error = 0;
         
-        for( i = 0; i < 1500; i++ )
+        for( i = 0; i < _looping; i++ )
         {
             error = 0d;
             
